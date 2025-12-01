@@ -1,6 +1,4 @@
-import java.util.Collections
 import kotlin.math.abs
-import kotlin.math.max
 
 fun main() {
     val rawInput = readInput("Day01")
@@ -13,29 +11,33 @@ fun main() {
             }
 
     
-    var zeroes = 0
-    var zeroPasses = 0
-    var position = 50
+    val zeroes = instructions
+        .fold(initial = 50 to 0) { (position, count), (direction, distance) ->
+            val increment = when (direction) {"L" -> -distance "R" -> distance else -> 0}
+            (increment + position).mod(100) to if (position == 0) count + 1 else count
+        }
     
-    instructions
-        .forEach { (direction, distance) -> 
+    val zeroPasses = instructions
+        .fold(initial = 50 to 0) { (position, count), (direction, distance) ->
             val increment = when (direction) {"L" -> -distance "R" -> distance else -> 0}
             val previous = position
-            position = (increment + position).mod(100)
-            if (position == 0) zeroes++
-            val extraLoops = abs(increment.div(100))
+            val next = (increment + position).mod(100)
+
+            val fullLoops = abs(increment.div(100))
             val throughZero = when(direction) {
-                "L" -> if (previous != 0 && previous <= position) 1 else 0
-                "R" -> if (position != 0 && previous >= position) 1 else 0
+                "L" -> if (previous != 0 && previous <= next) 1 else 0
+                "R" -> if (next != 0 && previous >= next) 1 else 0
                 else -> 0
             }
-            zeroPasses += throughZero + extraLoops
-    }
+            
+            next to count + fullLoops + throughZero
+        }
+           
     
 
     
-    val part1 = zeroes
-    val part2 = zeroPasses + zeroes
+    val part1 = zeroes.second
+    val part2 = zeroPasses.second + part1
     
     
     println("Part 1 solution is: $part1")
