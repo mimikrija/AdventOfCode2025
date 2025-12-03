@@ -1,44 +1,29 @@
-import kotlin.math.max
-
 fun main() {
     val batteries = readInput("Day03")
+    
 
-
-    val part1 = batteries.sumOf { maxJoltage(it) }
-
-    val part2 = batteries.sumOf { battery -> bla("", battery).toLong() }
+    val part1 = batteries.sumOf { battery -> highestNumber(battery, digits = 2).toLong() }
+    val part2 = batteries.sumOf { battery -> highestNumber(battery, digits = 12).toLong() }
 
     println("Part 1 solution is: $part1")
     println("Part 2 solution is: $part2")
-//
-//    assert(part1 == 53420042388)
-//    assert(part2 == 69553832684)
-}
 
-private fun maxJoltage(battery: String): Int {
-    val size = battery.length
-    return (1 until size
-            ).maxOf{ it ->
-        val left = battery.slice(0 until it)
-            .map{p -> p.toString().toInt()}
-            .max()
-            .toString()
-        val right = battery.slice(it until size)
-            .map{p-> p.toString().toInt()}
-            .max()
-            .toString()
-        (left + right).toInt()
-    }
+    assert(part1 == 16854.toLong())
+    assert(part2 == 167526011932478)
 }
 
 
-private fun bla(final: String = "", rest: String, currentMax: Long = 0): String {
-    val size = rest.length
-    val stop = 12 - final.length - 1
-    if (final.length == 12) return final
-    return (0 until size - stop).map { pos ->
-        val left = rest[pos]
-        bla(final + left, rest.slice(pos + 1 until size))
-    }.maxOf { it }
-
+private fun highestNumber(rest: String, solution: String="", digits: Int): String{
+    val solutionSize = solution.length
+    if (solutionSize == digits) return solution
+    val minimumRestSize = digits - solutionSize - 1
+    val left = rest.slice(0 until rest.length - minimumRestSize)
+    val highestInLeft = left.max()
+    val firstMaxPos = left.indexOfFirst { it == highestInLeft }
+    return highestNumber(
+        rest = rest.slice(firstMaxPos + 1 until rest.length),
+        solution = solution + highestInLeft.toString(),
+        digits = digits
+    ) 
+    
 }
