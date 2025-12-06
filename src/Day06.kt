@@ -1,11 +1,11 @@
 import kotlin.text.mapIndexed
 
 fun main() {
-    val mathHomework = readInput("Day06")
+    val mathHomework = readInputNoTrim("Day06")
         
     val numbers = mathHomework.dropLast(1)    
         .map { line ->
-            Regex("\\d+|[^\\d ]").findAll(line)
+            Regex("\\d+").findAll(line)
                 .mapIndexed { index, f -> index to f.value }
                 .toList()
                 .associate { it.first to it.second}
@@ -13,16 +13,14 @@ fun main() {
     
     val operations = mathHomework.takeLast(1)
         .map { line ->
-            Regex("[^\\d ]").findAll(line)
+            Regex("[+*]").findAll(line)
                 .mapIndexed { index, f -> index to f.value }
                 .toList()
                 .associate { it.first to it.second}
         }.first()
     
-    val operationCount = operations.size
     
-    
-    val part1 = (0 until operationCount)
+    val part1 = (0 until operations.size)
         .sumOf { index -> 
             val numbersForOperation = numbers.map { it[index]!!.toLong() }
             val operation = operations[index]
@@ -34,33 +32,37 @@ fun main() {
     
     
     val cephalopodsNumberColumns = mathHomework
-        .map { line ->
-            line.map{it}
-                .mapIndexed { column, letter -> column to letter }
+        .map { line -> line.mapIndexed { column, letter -> column to letter }
                 .associate { it.first to it.second }
         }
 
-    val lineLength = cephalopodsNumberColumns.flatMap{it.keys}.max()
+    val lineLength = cephalopodsNumberColumns.first().values.size
     
     val verticalNumbers = (0..lineLength)
         .map { column ->
-            cephalopodsNumberColumns.mapNotNull { it[column] }
-                .joinToString("") { it.toString() }
+            cephalopodsNumberColumns.mapNotNull { it[column]?.toString() }
+                .joinToString("") 
         }
     
-    val operationLocations = verticalNumbers
-        .mapIndexedNotNull { index, chars -> if (chars.contains("+") or chars.contains("*")) index else null }
+    var part2 = 0.toLong()
+    val stack = ArrayDeque(verticalNumbers )
+    var operation = ""
+    var nums = emptyList<Long>().toMutableList()
     
-    val splitPositions = operationLocations.zipWithNext().map{it.first to it.second}  + listOf(
-        operationLocations.last() to lineLength+1)
-    
+    while (stack.isNotEmpty()) {
+        val current = stack.removeFirst().filterNot {it.isWhitespace()}
+        if (current.isEmpty()) {
 
-    val part2 = splitPositions.map { (start, end) ->
-        verticalNumbers.subList(start, end)
-    }.sumOf {
-        val operation = it.first().last().toString()
-        val numbers = it.flatMap { n -> Regex("\\d+").findAll(n).map { f -> f.value.toLong() } }
-        if (operation == "+") numbers.sum() else numbers.fold(1.toLong()) { acc, i -> acc * i }
+            part2 += if (operation == "+") nums.sum() else nums.reduce { acc, i -> acc * i }
+            nums = emptyList<Long>().toMutableList()
+            continue
+        }
+        if ("+" in current || "*" in current) {
+            operation = current.last().toString()
+        }
+        nums += Regex("\\d+").findAll(current)
+            .joinToString { it.value }
+            .toLong()
     }
     
 
