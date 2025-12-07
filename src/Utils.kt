@@ -24,11 +24,11 @@ fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteA
  */
 fun Any?.println() = println(this)
 
-data class Coordinate(val x: Int, val y: Int){
+data class Coordinate(val x: Int, val y: Int) {
     fun manhattanDistanceTo(other: Coordinate) = (x - other.x).absoluteValue + (y - other.y).absoluteValue
-    
-}
 
+    operator fun plus(other: Coordinate) = Coordinate(x + other.x, y + other.y)
+}
 fun neighbors(
     coordinate: Coordinate,
     gridSize: Int,
@@ -48,5 +48,6 @@ fun neighbors(
     return (if (includeDiagonals) main + diagonals else main)
         .filter{ if(isInfinite) true else (it.x in 0 until gridSize && it.y in 0 until gridSize)}
 }
+
 
 
