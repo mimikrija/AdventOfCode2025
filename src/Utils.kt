@@ -3,6 +3,8 @@ import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.readText
 import kotlin.math.absoluteValue
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 /**
  * Reads lines from the given input txt file.
@@ -29,6 +31,16 @@ data class Coordinate(val x: Int, val y: Int) {
 
     operator fun plus(other: Coordinate) = Coordinate(x + other.x, y + other.y)
 }
+
+data class Coordinate3D(val x: Int, val y: Int, val z: Int) {
+
+    operator fun plus(other: Coordinate3D) = 
+        Coordinate3D(x + other.x, y + other.y, z + other.z)
+    
+}
+
+fun List<String>.toCoordinate3D() =
+    Coordinate3D(this[0].toInt(), this[1].toInt(), this[2].toInt())
 fun neighbors(
     coordinate: Coordinate,
     gridSize: Int,
