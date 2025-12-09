@@ -27,10 +27,23 @@ fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteA
 fun Any?.println() = println(this)
 
 data class Coordinate(val x: Int, val y: Int) {
-    fun manhattanDistanceTo(other: Coordinate) = (x - other.x).absoluteValue + (y - other.y).absoluteValue
 
     operator fun plus(other: Coordinate) = Coordinate(x + other.x, y + other.y)
 }
+
+data class CoordinateLong(val x: Long, val y: Long) {
+
+    operator fun plus(other: CoordinateLong) = CoordinateLong(x + other.x, y + other.y)
+}
+fun CoordinateLong.manhattanDistanceTo(other: Coordinate) = (x - other.x).absoluteValue + (y - other.y).absoluteValue
+
+fun List<String>.toCoordinate() =
+    Coordinate(this[0].toInt(), this[1].toInt())
+
+fun List<String>.toCoordinateLong() =
+    CoordinateLong(this[0].toLong(), this[1].toLong())
+
+
 
 data class Coordinate3D(val x: Int, val y: Int, val z: Int) {
 
