@@ -10,14 +10,10 @@ fun main() {
         }
 
     val part1 = countPaths(connections)
-   
-
     println("Part 1 solution is: $part1")
     
-    val part2 = countPaths(connections, lastPoint = "svr", goal = "dac") * countPaths(connections, lastPoint = "dac", goal = "fft") * countPaths(connections, lastPoint = "fft", goal = "out") +
-            countPaths(connections, lastPoint = "svr", goal = "fft") * countPaths(connections, lastPoint = "fft", goal = "dac") * countPaths(connections, lastPoint = "dac", goal = "out")
-
-   println("Part 2 solution is: $part2")
+    val part2 = countPathsWithMustVisits(connections, lastPoint = "svr", goal = "out")
+    println("Part 2 solution is: $part2")
     
     assert(part1 == 615L)
     assert(part2 == 303012373210128)
@@ -38,6 +34,30 @@ private fun countPaths(
     return connections[lastPoint]!!.sumOf { next ->
         val solution = countPaths(connections, goal, next, memo)
         memo[next] = solution
+        solution
+    }
+}
+
+
+private fun countPathsWithMustVisits(
+    connections: Map<String, List<String>>,
+    lastPoint: String = "you",
+    goal: String = "out",
+    memo: MutableMap<Pair<String, Set<String>>, Long> = mutableMapOf(),
+    seen: Set<String> = emptySet(),
+    mustVisit: Set<String> = setOf("fft", "dac"),
+): Long {
+    if (memo.containsKey(lastPoint to seen)) return memo[lastPoint to seen]!!
+    if (lastPoint == goal) return if (seen == mustVisit || mustVisit.isEmpty()) 1 else 0
+    return connections[lastPoint]!!.sumOf { next ->
+        val seenUpdate = if (next in mustVisit) seen + next else seen
+        val solution = countPathsWithMustVisits(
+            connections = connections,
+            lastPoint = next,
+            memo = memo,
+            seen = seenUpdate,
+        )
+        memo[next to seenUpdate] = solution
         solution
     }
 }
